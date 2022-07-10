@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:9090
+EXPOSE 9090
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+WORKDIR /src
+COPY ["*.sln", "./"]
+COPY ["./nuget.config", "./"]
+COPY ["Grpc/CustomerRelationship.Voucher.Management.Grpc.csproj", "Grpc/"]
+COPY ["Domain/CustomerRelationship.Voucher.Management.Domain.csproj", "Domain/"]
+COPY ["CrossCutting.Configuration/CustomerRelationship.Voucher.Management.CrossCutting.Configuration.csproj", "CrossCutting.Configuration/"]
+COPY ["CrossCutting.Exceptions/CustomerRelationship.Voucher.Management.CrossCutting.Exceptions.csproj", "CrossCutting.Exceptions/"]
+COPY ["Infrastructure.Data/CustomerRelationship.Voucher.Management.Infrastructure.Data.csproj", "Infrastructure.Data/"]
+COPY ["Infrastructure.Publisher/CustomerRelationship.Voucher.Management.Infrastructure.Publisher.csproj", "Infrastructure.Publisher/"]
+COPY ["Infrastructure.Service/CustomerRelationship.Voucher.Management.Infrastructure.Service.csproj", "Infrastructure.Service/"]
+COPY ["Tests.Shared/CustomerRelationship.Voucher.Management.Tests.Shared.csproj", "Tests.Shared/"]
+COPY ["Tests.Unity/CustomerRelationship.Voucher.Management.Tests.Unity.csproj", "Tests.Unity/"]
+
+
+RUN dotnet restore "Grpc/CustomerRelationship.Voucher.Management.Grpc.csproj"
+COPY . .
+WORKDIR "/src/Grpc"
+RUN mv appsettings.Docker.json appsettings.json
+RUN dotnet build "CustomerRelationship.Voucher.Management.Grpc.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "CustomerRelationship.Voucher.Management.Grpc.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "CustomerRelationship.Voucher.Management.Grpc.dll"]
