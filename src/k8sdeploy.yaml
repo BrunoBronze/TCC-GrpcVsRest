@@ -1,0 +1,952 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: __k8s.namespace__
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crs-vcr-mgt-__environment__-api-int-svc
+  namespace: __k8s.namespace__
+  annotations:
+    dns_zone: private
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  name: crs-vcr-mgt-__environment__-api-int-svc
+  labels:
+    app: crs-vcr-mgt-__environment__-api-int
+    tier: api
+    version: v1
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+  selector:
+    app: crs-vcr-mgt-__environment__-api
+    tier: api
+    version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-api-dep
+  labels:
+    app: crs-vcr-mgt-__environment__-api
+    tier: api
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: crs-vcr-mgt-__environment__-api
+      tier: api
+      version: v1
+  replicas: __k8s.app.api.resources.min.replicas__
+  template:
+    metadata:
+      labels:
+        app: crs-vcr-mgt-__environment__-api
+        tier: api
+        version: v1
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - usernodepool
+      containers:
+        - name: crs-vcr-mgt-__environment__-api
+          image: 'acrdevopsbr.azurecr.io/customerrelationship/voucher/management/api:latest'
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "echo options single-request-reopen >> /etc/resolv.conf"]
+          env:
+            - name: log.console.enabled
+              value: "__log.console.enabled__" 
+            - name: log.console.minimumLevel
+              value: "__log.console.minimumLevel__" 
+            - name: log.applicationInsights.enabled
+              value: "__log.applicationInsights.enabled__"
+            - name: log.applicationInsights.minimumLevel
+              value: "__log.applicationInsights.minimumLevel__"   
+            - name: log.applicationInsights.instrumentationKey
+              value: "__log.applicationInsights.instrumentationKey__"
+            - name: connectionSettings.voucherStatement.connectionString
+              value: "__connectionSettings.voucherStatement.connectionString__"
+            - name: connectionSettings.voucherScheduling.connectionString
+              value: "__connectionSettings.voucherScheduling.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherNotificationManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherNotificationManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherCreatedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCreatedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString
+              value: "__events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesManagement.name
+              value: "__serviceBusSettings.pub.voucherRulesManagement.name__"
+            - name: serviceBusSettings.pub.voucherNotificationManagement.name
+              value: "__serviceBusSettings.pub.voucherNotificationManagement.name__"
+            - name: serviceBusSettings.pub.voucherCommentRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherCommentRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherCreatedManagement.name
+              value: "__serviceBusSettings.pub.voucherCreatedManagement.name__"
+            - name: serviceBusSettings.pub.voucherContactUpdateManagement.name
+              value: "__serviceBusSettings.pub.voucherContactUpdateManagement.name__"
+            - name: serviceBusSettings.pub.voucherLinkRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherLinkRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherStatementItemAdd.name
+              value: "__serviceBusSettings.pub.voucherStatementItemAdd.name__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name__"
+            - name: swaggerDoc.host
+              value: "__swaggerDoc.host__"
+            - name: jwtTokenSettings.expiration
+              value: "__jwtTokenSettings.expiration__"
+            - name: jwtTokenSettings.secretkey
+              value: "__jwtTokenSettings.secretkey__"
+            - name: cache.redis.serverConfiguration
+              value: "__cache.redis.serverConfiguration__"
+            - name: cache.redis.expirationMinutes
+              value: "__cache.redis.expirationMinutes__"
+            - name: configurationSettings.voucherStatement.tableName
+              value: "__configurationSettings.voucherStatement.tableName__"
+            - name: serviceClients.voucherServiceClientId.address
+              value: "__serviceClients.voucherServiceClientId.address__"
+            - name: serviceClients.voucherServiceClientId.subscriptionKey
+              value: "__serviceClients.voucherServiceClientId.subscriptionKey__"
+            - name: serviceClients.voucherServiceClientId.timeout
+              value: "__serviceClients.voucherServiceClientId.timeout__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.waitDuration__"
+            - name: serviceClients.authenticationServiceClientId.address
+              value: "__serviceClients.authenticationServiceClientId.address__"
+            - name: serviceClients.authenticationServiceClientId.subscriptionKey
+              value: "__serviceClients.authenticationServiceClientId.subscriptionKey__"
+            - name: serviceClients.authenticationServiceClientId.timeout
+              value: "__serviceClients.authenticationServiceClientId.timeout__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.waitDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.address
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.address__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.timeout
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.timeout__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration__"
+            - name: hypermedia.host
+              value: "__hypermedia.host__"
+            - name: hypermedia.hostAuthentication
+              value: "__hypermedia.hostAuthentication__"
+            - name: expirationDateDays
+              value: "__expirationDateDays__"
+            - name: b2cSettings.device
+              value: "__b2cSettings.device__"
+            - name: serviceClients.reservationServiceClientId.address
+              value: "__serviceClients.reservationServiceClientId.address__"
+            - name: serviceClients.reservationServiceClientId.subscriptionKey
+              value: "__serviceClients.reservationServiceClientId.subscriptionKey__"
+            - name: serviceClients.reservationServiceClientId.timeout
+              value: "__serviceClients.reservationServiceClientId.timeout__"
+            - name: serviceClients.reservationServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.reservationServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.reservationServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.reservationServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.reservationServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.reservationServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.reservationServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.reservationServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.reservationServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.reservationServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.reservationServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.reservationServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.reservationServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.reservationServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.reservationServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.reservationServiceClientId.resilience.retry.waitDuration__"
+            - name: workerSettings.enabled
+              value: "__workerSettings.enabled__"
+            - name: workerSettings.minutesExecutionInterval
+              value: "__workerSettings.minutesExecutionInterval__"
+            - name: workerSettings.redisDataExpirationInMinutes
+              value: "__workerSettings.redisDataExpirationInMinutes__"
+            - name: workerSettings.semaphoreLockTimeInMinutes
+              value: "__workerSettings.semaphoreLockTimeInMinutes__"
+            - name: workerSettings.percentOfTimeLeftToRunBeforeCacheExpires
+              value: "__workerSettings.percentOfTimeLeftToRunBeforeCacheExpires__"
+            - name: workerSettings.maxConfigurationCodePerRequest
+              value: "__workerSettings.maxConfigurationCodePerRequest__"
+            - name: navitaireCredentials.domain
+              value: "__navitaireCredentials.domain__"
+            - name: navitaireCredentials.username
+              value: "__navitaireCredentials.username__"
+            - name: navitaireCredentials.password
+              value: "__navitaireCredentials.password__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberv2
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberv2__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator__"
+            - name: timeoutDbInSecondsSettings.plannedRulesRepository.getById
+              value: "__timeoutDbInSecondsSettings.plannedRulesRepository.getById__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocator
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocator__"
+            - name: timeoutDbInSecondsSettings.voucherExtractRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherExtractRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherReference__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.deleteByIds
+              value: "__timeoutDbInSecondsSettings.voucherRepository.deleteByIds__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference__"
+            - name: timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode
+              value: "__timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds__"
+            - name: timeoutDbInSecondsSettings.passengerRepository.existsPassengerInRecordLocator
+              value: "__timeoutDbInSecondsSettings.passengerRepository.existsPassengerInRecordLocator__"
+            - name: timeoutDbInSecondsSettings.passengerRepository.updatePassengerByPassengerAlternateKey
+              value: "__timeoutDbInSecondsSettings.passengerRepository.updatePassengerByPassengerAlternateKey__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.existsCustomerNumberForCreatedVoucher
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.existsCustomerNumberForCreatedVoucher__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodesAsync
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodesAsync__"
+            - name: readinessHealthCheckSettings.services
+              value: "__readinessHealthCheckSettings.services__"
+            - name: cacheConfiguration.cacheKeys.ttlMinutes
+              value: "__cacheConfiguration.cacheKeys.ttlMinutes__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedVoucherStatus.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedVoucherStatus.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedVoucherStatus.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedVoucherStatus.name__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getVoucherExtractByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getVoucherExtractByVoucherReference__"
+            - name: refundSettings.defaultConfigurationCode
+              value: "__refundSettings.defaultConfigurationCode__"
+            - name: refundSettings.defaultIssuanceReasonCode
+              value: "__refundSettings.defaultIssuanceReasonCode__"
+          ports:
+            - name: http 
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+                path: /health/live
+                port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+                path: /health/ready
+                port: 80
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 3
+            timeoutSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+            initialDelaySeconds: 8
+            failureThreshold: 30
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: __k8s.app.api.resources.requests.cpu__
+              memory: __k8s.app.api.resources.requests.memory__
+            limits:
+              cpu: __k8s.app.api.resources.limits.cpu__
+              memory: __k8s.app.api.resources.limits.memory__
+          terminationMessagePath: /__environment__/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-api-hpa
+spec:
+  minReplicas: __k8s.app.api.resources.min.replicas__
+  maxReplicas: __k8s.app.api.resources.max.replicas__
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: crs-vcr-mgt-__environment__-api-dep
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 95
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 95
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-grpc-svc
+  labels:
+    app: crs-vcr-mgt-__environment__-grpc
+    tier: grpc
+    version: v1
+spec:
+  ports:
+    - port: 9090
+      targetPort: 9090
+  selector:
+    app: crs-vcr-mgt-__environment__-grpc
+    tier: grpc
+    version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-grpc-dep
+  labels:
+    app: crs-vcr-mgt-__environment__-grpc
+    tier: grpc
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: crs-vcr-mgt-__environment__-grpc
+      tier: grpc
+      version: v1
+  replicas: __k8s.app.grpc.resources.min.replicas__
+  template:
+    metadata:
+      labels:
+        app: crs-vcr-mgt-__environment__-grpc
+        tier: grpc
+        version: v1
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - usernodepool
+      containers:
+        - name: crs-vcr-mgt-__environment__-grpc
+          image: 'acrdevopsbr.azurecr.io/customerrelationship/voucher/management/grpc:latest'
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "echo options single-request-reopen >> /etc/resolv.conf"]
+          env:
+            - name: log.console.enabled
+              value: "__log.console.enabled__" 
+            - name: log.console.minimumLevel
+              value: "__log.console.minimumLevel__" 
+            - name: log.applicationInsights.enabled
+              value: "__log.applicationInsights.enabled__"
+            - name: log.applicationInsights.minimumLevel
+              value: "__log.applicationInsights.minimumLevel__"   
+            - name: log.applicationInsights.instrumentationKey
+              value: "__log.applicationInsights.instrumentationKey__"
+            - name: connectionSettings.voucherScheduling.connectionString
+              value: "__connectionSettings.voucherScheduling.connectionString__"
+            - name: connectionSettings.voucherStatement.connectionString
+              value: "__connectionSettings.voucherStatement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherNotificationManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherNotificationManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherCreatedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCreatedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString
+              value: "__events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesManagement.name
+              value: "__serviceBusSettings.pub.voucherRulesManagement.name__"
+            - name: serviceBusSettings.pub.voucherNotificationManagement.name
+              value: "__serviceBusSettings.pub.voucherNotificationManagement.name__"
+            - name: serviceBusSettings.pub.voucherCommentRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherCommentRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherCreatedManagement.name
+              value: "__serviceBusSettings.pub.voucherCreatedManagement.name__"
+            - name: serviceBusSettings.pub.voucherContactUpdateManagement.name
+              value: "__serviceBusSettings.pub.voucherContactUpdateManagement.name__"
+            - name: serviceBusSettings.pub.voucherLinkRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherLinkRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherStatementItemAdd.name
+              value: "__serviceBusSettings.pub.voucherStatementItemAdd.name__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name__"
+            - name: jwtTokenSettings.expiration
+              value: "__jwtTokenSettings.expiration__"
+            - name: jwtTokenSettings.secretkey
+              value: "__jwtTokenSettings.secretkey__"
+            - name: cache.redis.serverConfiguration
+              value: "__cache.redis.serverConfiguration__"
+            - name: cache.redis.expirationMinutes
+              value: "__cache.redis.expirationMinutes__"
+            - name: configurationSettings.voucherStatement.tableName
+              value: "__configurationSettings.voucherStatement.tableName__"
+            - name: serviceClients.voucherServiceClientId.address
+              value: "__serviceClients.voucherServiceClientId.address__"
+            - name: serviceClients.voucherServiceClientId.subscriptionKey
+              value: "__serviceClients.voucherServiceClientId.subscriptionKey__"
+            - name: serviceClients.voucherServiceClientId.timeout
+              value: "__serviceClients.voucherServiceClientId.timeout__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.waitDuration__"
+            - name: b2cSettings.device
+              value: "__b2cSettings.device__"
+            - name: serviceClients.authenticationServiceClientId.address
+              value: "__serviceClients.authenticationServiceClientId.address__"
+            - name: serviceClients.authenticationServiceClientId.subscriptionKey
+              value: "__serviceClients.authenticationServiceClientId.subscriptionKey__"
+            - name: serviceClients.authenticationServiceClientId.timeout
+              value: "__serviceClients.authenticationServiceClientId.timeout__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.waitDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.address
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.address__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.subscriptionKey
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.subscriptionKey__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.timeout
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.timeout__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration__"
+            - name: expirationDateDays
+              value: "__expirationDateDays__"
+            - name: workerSettings.enabled
+              value: "__workerSettings.enabled__"
+            - name: workerSettings.minutesExecutionInterval
+              value: "__workerSettings.minutesExecutionInterval__"
+            - name: workerSettings.redisDataExpirationInMinutes
+              value: "__workerSettings.redisDataExpirationInMinutes__"
+            - name: workerSettings.semaphoreLockTimeInMinutes
+              value: "__workerSettings.semaphoreLockTimeInMinutes__"
+            - name: workerSettings.percentOfTimeLeftToRunBeforeCacheExpires
+              value: "__workerSettings.percentOfTimeLeftToRunBeforeCacheExpires__"
+            - name: workerSettings.maxConfigurationCodePerRequest
+              value: "__workerSettings.maxConfigurationCodePerRequest__"
+            - name: navitaireCredentials.domain
+              value: "__navitaireCredentials.domain__"
+            - name: navitaireCredentials.username
+              value: "__navitaireCredentials.username__"
+            - name: navitaireCredentials.password
+              value: "__navitaireCredentials.password__"
+            - name: hypermedia.host
+              value: "__hypermedia.host__"
+            - name: hypermedia.hostAuthentication
+              value: "__hypermedia.hostAuthentication__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator__"
+            - name: timeoutDbInSecondsSettings.plannedRulesRepository.getById
+              value: "__timeoutDbInSecondsSettings.plannedRulesRepository.getById__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberv2
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberv2__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes__"
+            - name: timeoutDbInSecondsSettings.voucherExtractRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherExtractRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.deleteByIds
+              value: "__timeoutDbInSecondsSettings.voucherRepository.deleteByIds__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference__"
+            - name: timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode
+              value: "__timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodesAsync
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodesAsync__"
+            - name: cacheConfiguration.cacheKeys.ttlMinutes
+              value: "__cacheConfiguration.cacheKeys.ttlMinutes__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedVoucherStatus.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedVoucherStatus.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedVoucherStatus.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedVoucherStatus.name__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getVoucherExtractByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getVoucherExtractByVoucherReference__"
+            - name: refundSettings.defaultConfigurationCode
+              value: "__refundSettings.defaultConfigurationCode__"
+            - name: refundSettings.defaultIssuanceReasonCode
+              value: "__refundSettings.defaultIssuanceReasonCode__"
+          ports:
+            - name: grpc 
+              containerPort: 9090
+              protocol: TCP
+          resources:
+            requests:
+              cpu: __k8s.app.grpc.resources.requests.cpu__
+              memory: __k8s.app.grpc.resources.requests.memory__
+            limits:
+              cpu: __k8s.app.grpc.resources.limits.cpu__
+              memory: __k8s.app.grpc.resources.limits.memory__
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:9090"]
+            initialDelaySeconds: 10          
+      restartPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-grpc-hpa
+spec:
+  minReplicas: __k8s.app.grpc.resources.min.replicas__
+  maxReplicas: __k8s.app.grpc.resources.max.replicas__
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: crs-vcr-mgt-__environment__-grpc-dep
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 95
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 95
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: __k8s.namespace__
+  name: crs-vcr-mgt-__environment__-worker-dep
+  labels:
+    app: crs-vcr-mgt-__environment__-worker
+    tier: worker
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: crs-vcr-mgt-__environment__-worker
+      tier: worker
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crs-vcr-mgt-__environment__-worker
+        tier: worker
+        version: v1
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - usernodepool
+      containers:
+        - name: crs-vcr-mgt-__environment__-worker
+          image: 'acrdevopsbr.azurecr.io/customerrelationship/voucher/management/worker:latest'
+          env:
+            - name: log.console.enabled
+              value: "__log.console.enabled__" 
+            - name: log.console.minimumLevel
+              value: "__log.console.minimumLevel__" 
+            - name: log.applicationInsights.enabled
+              value: "__log.applicationInsights.enabled__"
+            - name: log.applicationInsights.minimumLevel
+              value: "__log.applicationInsights.minimumLevel__"   
+            - name: log.applicationInsights.instrumentationKey
+              value: "__log.applicationInsights.instrumentationKey__"
+            - name: connectionSettings.voucherScheduling.connectionString
+              value: "__connectionSettings.voucherScheduling.connectionString__"
+            - name: connectionSettings.voucherStatement.connectionString
+              value: "__connectionSettings.voucherStatement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherNotificationManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherNotificationManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCommentRequestedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherCreatedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherCreatedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherContactUpdateManagement.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString
+              value: "__events.azureServiceBusId.pub.voucherLinkRequestedManagement.connectionString__"  
+            - name: events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString
+              value: "__events.azureServiceBusId.pub.voucherStatementItemAdd.connectionString__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedWithoutTa.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesManagement.name
+              value: "__serviceBusSettings.pub.voucherRulesManagement.name__"
+            - name: serviceBusSettings.pub.voucherNotificationManagement.name
+              value: "__serviceBusSettings.pub.voucherNotificationManagement.name__"
+            - name: serviceBusSettings.pub.voucherCommentRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherCommentRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherCreatedManagement.name
+              value: "__serviceBusSettings.pub.voucherCreatedManagement.name__"
+            - name: serviceBusSettings.pub.voucherContactUpdateManagement.name
+              value: "__serviceBusSettings.pub.voucherContactUpdateManagement.name__"
+            - name: serviceBusSettings.pub.voucherLinkRequestedManagement.name
+              value: "__serviceBusSettings.pub.voucherLinkRequestedManagement.name__"
+            - name: serviceBusSettings.pub.voucherStatementItemAdd.name
+              value: "__serviceBusSettings.pub.voucherStatementItemAdd.name__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedWithoutTa.name__"
+            - name: jwtTokenSettings.expiration
+              value: "__jwtTokenSettings.expiration__"
+            - name: jwtTokenSettings.secretkey
+              value: "__jwtTokenSettings.secretkey__"
+            - name: cache.redis.serverConfiguration
+              value: "__cache.redis.serverConfiguration__"
+            - name: cache.redis.expirationMinutes
+              value: "__cache.redis.expirationMinutes__"
+            - name: configurationSettings.voucherStatement.tableName
+              value: "__configurationSettings.voucherStatement.tableName__"
+            - name: serviceClients.voucherServiceClientId.address
+              value: "__serviceClients.voucherServiceClientId.address__"
+            - name: serviceClients.voucherServiceClientId.subscriptionKey
+              value: "__serviceClients.voucherServiceClientId.subscriptionKey__"
+            - name: serviceClients.voucherServiceClientId.timeout
+              value: "__serviceClients.voucherServiceClientId.timeout__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.voucherServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.voucherServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.voucherServiceClientId.resilience.retry.waitDuration__"
+            - name: b2cSettings.device
+              value: "__b2cSettings.device__"
+            - name: serviceClients.authenticationServiceClientId.address
+              value: "__serviceClients.authenticationServiceClientId.address__"
+            - name: serviceClients.authenticationServiceClientId.subscriptionKey
+              value: "__serviceClients.authenticationServiceClientId.subscriptionKey__"
+            - name: serviceClients.authenticationServiceClientId.timeout
+              value: "__serviceClients.authenticationServiceClientId.timeout__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.authenticationServiceClientId.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.enabled
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.enabled__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.attempts
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.attempts__"
+            - name: serviceClients.authenticationServiceClientId.resilience.retry.waitDuration
+              value: "__serviceClients.authenticationServiceClientId.resilience.retry.waitDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.address
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.address__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.subscriptionKey
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.subscriptionKey__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.timeout
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.timeout__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.failureThreshold__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.samplingDuration__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.minimumThrouput__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.circuitbreaker.durationOfBreak__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.enabled__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.attempts__"
+            - name: serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration
+              value: "__serviceClients.nameMatchEnterpriseServiceClient.resilience.retry.waitDuration__"
+            - name: expirationDateDays
+              value: "__expirationDateDays__"
+            - name: workerSettings.enabled
+              value: "__workerSettings.enabled__"
+            - name: workerSettings.minutesExecutionInterval
+              value: "__workerSettings.minutesExecutionInterval__"
+            - name: workerSettings.redisDataExpirationInMinutes
+              value: "__workerSettings.redisDataExpirationInMinutes__"
+            - name: workerSettings.semaphoreLockTimeInMinutes
+              value: "__workerSettings.semaphoreLockTimeInMinutes__"
+            - name: workerSettings.percentOfTimeLeftToRunBeforeCacheExpires
+              value: "__workerSettings.percentOfTimeLeftToRunBeforeCacheExpires__"
+            - name: workerSettings.maxConfigurationCodePerRequest
+              value: "__workerSettings.maxConfigurationCodePerRequest__"
+            - name: navitaireCredentials.domain
+              value: "__navitaireCredentials.domain__"
+            - name: navitaireCredentials.username
+              value: "__navitaireCredentials.username__"
+            - name: navitaireCredentials.password
+              value: "__navitaireCredentials.password__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireProcedure.getCustomerNumberByVoucherReferences__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator
+              value: "__timeoutDbInSecondsSettings.linkedVoucherRepository.getLinkedVoucherByCustomerNumberOrRecordLocator__"
+            - name: timeoutDbInSecondsSettings.plannedRulesRepository.getById
+              value: "__timeoutDbInSecondsSettings.plannedRulesRepository.getById__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodeType__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getStatusByCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getVoucherNotificationByRecordLocator__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCode__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.updateStatusByCodes__"
+            - name: timeoutDbInSecondsSettings.voucherExtractRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherExtractRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByCustomerNumber__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.getByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys
+              value: "__timeoutDbInSecondsSettings.voucherNavitaireRepository.deleteByVoucherKeys__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.deleteByIds
+              value: "__timeoutDbInSecondsSettings.voucherRepository.deleteByIds__"
+            - name: timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference
+              value: "__timeoutDbInSecondsSettings.voucherRepository.getByVoucherReference__"
+            - name: timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode
+              value: "__timeoutDbInSecondsSettings.voucherSchedulingPreVoucherRepository.updateRedemptionDateByCode__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.insert__"
+            - name: timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds
+              value: "__timeoutDbInSecondsSettings.voucherStatementPlannedRulesAnswerBehaviorRepository.deleteByPlannedRulesIds__"
+            - name: timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodes
+              value: "__timeoutDbInSecondsSettings.preVoucherRepository.getByRecordLocatorCodes__"
+            - name: cacheConfiguration.cacheKeys.ttlMinutes
+              value: "__cacheConfiguration.cacheKeys.ttlMinutes__"
+            - name: events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString
+              value: "__events.azureServiceBusId.pub.voucherRulesAppliedNegativeAnswer.connectionString__"
+            - name: serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name
+              value: "__serviceBusSettings.pub.voucherRulesAppliedNegativeAnswer.name__"
+            - name: refundSettings.defaultConfigurationCode
+              value: "__refundSettings.defaultConfigurationCode__"
+            - name: refundSettings.defaultIssuanceReasonCode
+              value: "__refundSettings.defaultIssuanceReasonCode__"
+          resources:
+            requests:
+              cpu: __k8s.app.worker.resources.requests.cpu__
+              memory: __k8s.app.worker.resources.requests.memory__
+            limits:
+              cpu: __k8s.app.worker.resources.limits.cpu__
+              memory: __k8s.app.worker.resources.limits.memory__
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%

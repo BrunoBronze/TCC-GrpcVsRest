@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32602.291
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Rest", "Manifest.Api.Rest\Manifest.Api.Rest.csproj", "{76FD6E4D-CC5B-44D9-8717-FC6356DC69DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Rest", "Api.Rest\Manifest.Api.Rest.csproj", "{76FD6E4D-CC5B-44D9-8717-FC6356DC69DA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Presentation", "1 - Presentation", "{B1DE75BA-06E3-429F-8A47-2E60E2550593}"
 EndProject
@@ -15,15 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - CrossCutting", "4 - Cro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 - Tests", "5 - Tests", "{3F3D86C5-26AE-4187-A28A-473983443A2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manifest.Api.Grpc", "Manifest.Api.Grpc\Manifest.Api.Grpc.csproj", "{56996B56-6C95-4557-8B6D-54C0341BE8F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Grpc", "Api.Grpc\Manifest.Api.Grpc.csproj", "{56996B56-6C95-4557-8B6D-54C0341BE8F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manifest.Api.Domain", "Manifest.Api.Domain\Manifest.Api.Domain.csproj", "{768BAD50-20D9-46EE-ADA4-7089F26DB099}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Domain", "Domain\Manifest.Api.Domain.csproj", "{768BAD50-20D9-46EE-ADA4-7089F26DB099}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manifest.Api.Data", "Manifest.Api.Data\Manifest.Api.Data.csproj", "{BEE8C7CF-820F-4367-A18C-F990DA017632}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Infrastructure.Data", "Infrastructure.Data\Manifest.Api.Infrastructure.Data.csproj", "{BEE8C7CF-820F-4367-A18C-F990DA017632}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manifest.Api.CrossCutting.Configuration", "Manifest.Api.CrossCutting.Configuration\Manifest.Api.CrossCutting.Configuration.csproj", "{D57513F2-249B-4BAE-8FF2-418624154E15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.CrossCutting.Configuration", "CrossCutting.Configuration\Manifest.Api.CrossCutting.Configuration.csproj", "{D57513F2-249B-4BAE-8FF2-418624154E15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manifest.Api.Tests", "Manifest.Api.Tests\Manifest.Api.Tests.csproj", "{8A77DCDF-5F72-4665-B86E-DC7BBA7E5DD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manifest.Api.Tests.Unity", "Tests.Unity\Manifest.Api.Tests.Unity.csproj", "{8A77DCDF-5F72-4665-B86E-DC7BBA7E5DD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,32 @@
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.4-alpine3.11 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.300-alpine3.11 AS build
+WORKDIR /src
+COPY ["*.sln", "./"]
+COPY ["./nuget.config", "./"]
+COPY ["Api/CustomerRelationship.Voucher.Management.Api.csproj", "Api/"]
+COPY ["Domain/CustomerRelationship.Voucher.Management.Domain.csproj", "Domain/"]
+COPY ["CrossCutting.Configuration/CustomerRelationship.Voucher.Management.CrossCutting.Configuration.csproj", "CrossCutting.Configuration/"]
+COPY ["CrossCutting.Exceptions/CustomerRelationship.Voucher.Management.CrossCutting.Exceptions.csproj", "CrossCutting.Exceptions/"]
+COPY ["Infrastructure.Data/CustomerRelationship.Voucher.Management.Infrastructure.Data.csproj", "Infrastructure.Data/"]
+COPY ["Infrastructure.Publisher/CustomerRelationship.Voucher.Management.Infrastructure.Publisher.csproj", "Infrastructure.Publisher/"]
+COPY ["Infrastructure.Service/CustomerRelationship.Voucher.Management.Infrastructure.Service.csproj", "Infrastructure.Service/"]
+COPY ["Tests.Shared/CustomerRelationship.Voucher.Management.Tests.Shared.csproj", "Tests.Shared/"]
+COPY ["Tests.Unity/CustomerRelationship.Voucher.Management.Tests.Unity.csproj", "Tests.Unity/"]
+
+# COPY ["NugetLocal/*.nupkg", "NugetLocal/"]
+RUN dotnet restore "Api/CustomerRelationship.Voucher.Management.Api.csproj"
+COPY . .
+WORKDIR "/src/Api"
+RUN mv appsettings.Docker.json appsettings.json
+RUN dotnet build "CustomerRelationship.Voucher.Management.Api.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "CustomerRelationship.Voucher.Management.Api.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "CustomerRelationship.Voucher.Management.Api.dll"]
