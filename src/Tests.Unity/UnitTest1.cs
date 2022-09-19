@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Manifest.Api.Tests
+namespace Manifest.Api.Tests.Unity
 {
     public class Tests
     {

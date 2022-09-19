@@ -1,28 +1,30 @@
-﻿using System.Collections.Generic;
-using Dapper;
+﻿using Dapper;
+using Manifest.Api.Domain.Entities;
 using Manifest.Api.Domain.Interfaces.Repositories;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
 namespace Manifest.Api.Infrastructure.Data.Repositories
 {
-    public class ManifestRepository : IManifestRepository
+    public class FlightRepository : IFlightRepository
     {
         private readonly IDbConnection _connection;
 
-        public ManifestRepository(IDbConnection sqlConnection)
+        public FlightRepository(IDbConnection sqlConnection)
         {
             _connection = sqlConnection;
         }
 
-        public async Task<IEnumerable<Domain.Entities.Manifest>> GetAllManifestsAsync()
+        public async Task<IEnumerable<Flight>> GetAllManifestsAsync()
         {
             var sql = @"SELECT Id
+                              ,FlightKey
                               ,ManifestKey
                               ,Json 
-                        FROM Manifest";
+                        FROM Flight";
 
-            return await _connection.QueryAsync<Domain.Entities.Manifest>(sql, commandTimeout: 5);
+            return await _connection.QueryAsync<Flight>(sql);
         }
     }
 }
