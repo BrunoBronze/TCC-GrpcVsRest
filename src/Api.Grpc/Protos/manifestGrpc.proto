@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "Manifest.Api.Grpc.protos";
+
+package manifest;
+
+service ManifestGrpc {
+  rpc GetAllFlightsAndManifests (GetAllFlightsAndManifestsRequest) returns (GetAllFlightsAndManifestsResponse);
+}
+
+message GetAllFlightsAndManifestsRequest {
+  string name = 1;
+}
+
+message GetAllFlightsAndManifestsResponse {
+  string message = 1;
+}
